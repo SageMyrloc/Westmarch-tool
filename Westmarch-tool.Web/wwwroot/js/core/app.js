@@ -1,4 +1,7 @@
-const API_BASE_URL = 'https://localhost:7271';
+// Use environment-aware API URL
+const API_BASE_URL = window.location.hostname === 'localhost'
+    ? 'http://localhost:5245'  // Local development
+    : '/api';  // Production (proxied through Nginx)
 
 document.getElementById('testBtn').addEventListener('click', async () => {
     try {

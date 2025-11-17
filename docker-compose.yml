@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  # API Service
+  westmarch-api:
+    build:
+      context: .
+      dockerfile: Westmarch-tool.API/Dockerfile
+    container_name: westmarch-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+    networks:
+      - westmarch-network
+    ports:
+      - "5245:8080"  # Map to host port for direct access if needed
+    restart: unless-stopped
+
+  # Web Service
+  westmarch-web:
+    build:
+      context: .
+      dockerfile: Westmarch-tool.Web/Dockerfile
+    container_name: westmarch-web
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+    networks:
+      - westmarch-network
+    ports:
+      - "5057:8080"  # Map to host port for direct access if needed
+    restart: unless-stopped
+    depends_on:
+      - westmarch-api
+
+  # Nginx Proxy Manager (if not already running separately)
+  nginx-proxy-manager:
+    image: jc21/nginx-proxy-manager:latest
+    container_name: nginx-proxy-manager
+    ports:
+      - "80:80"     # HTTP
+      - "443:443"   # HTTPS
+      - "81:81"     # Admin UI
+    environment:
+      DB_SQLITE_FILE: "/data/database.sqlite"
+    volumes:
+      - npm-data:/data
+      - npm-letsencrypt:/etc/letsencrypt
+    networks:
+      - westmarch-network
+    restart: unless-stopped
+
+networks:
+  westmarch-network:
+    driver: bridge
+
+volumes:
+  npm-data:
+  npm-letsencrypt:
