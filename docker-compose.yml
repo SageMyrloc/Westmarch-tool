@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # API Service
   westmarch-api:
@@ -8,13 +6,20 @@ services:
       dockerfile: Westmarch-tool.API/Dockerfile
     container_name: westmarch-api
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Server=westmarch-sqlserver,1433;Database=WestmarchDB;User Id=sa;Password=${SQL_PASSWORD};TrustServerCertificate=True;
+      - JwtSettings__SecretKey=${JWT_SECRET}
+      - JwtSettings__Issuer=WestmarchAPI
+      - JwtSettings__Audience=WestmarchWeb
+      - JwtSettings__ExpirationMinutes=1440
     networks:
       - westmarch-network
     ports:
-      - "5245:8080"  # Map to host port for direct access if needed
+      - "5245:8080"
     restart: unless-stopped
+    depends_on:
+      - westmarch-sqlserver
 
   # Web Service
   westmarch-web:
@@ -28,19 +33,69 @@ services:
     networks:
       - westmarch-network
     ports:
-      - "5057:8080"  # Map to host port for direct access if needed
+      - "5057:8080"
     restart: unless-stopped
     depends_on:
       - westmarch-api
 
-  # Nginx Proxy Manager (if not already running separately)
+  # Foundry VTT Service
+  foundry-vtt:
+    image: felddy/foundryvtt:release
+    container_name: foundry-vtt
+    hostname: foundry-sagemyrloc
+    init: true
+    restart: unless-stopped
+    volumes:
+      - foundry-data:/data
+    environment:
+      - FOUNDRY_USERNAME=${FOUNDRY_USERNAME}
+      - FOUNDRY_PASSWORD=${FOUNDRY_PASSWORD}
+      - FOUNDRY_ADMIN_KEY=${FOUNDRY_ADMIN_KEY}
+      - FOUNDRY_LICENSE_KEY=${FOUNDRY_LICENSE_KEY}
+      - FOUNDRY_MINIFY_STATIC_FILES=true
+      - FOUNDRY_HOSTNAME=foundry.sagemyrloc.co.uk
+      - FOUNDRY_ROUTE_PREFIX=
+      - FOUNDRY_PROXY_PORT=443
+      - FOUNDRY_PROXY_SSL=true
+    networks:
+      - westmarch-network
+    ports:
+      - "30000:30000"
+
+  # SQL Server
+  westmarch-sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: westmarch-sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${SQL_PASSWORD}
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    networks:
+      - westmarch-network
+    restart: unless-stopped
+
+  # Adminer
+  adminer:
+    image: adminer
+    container_name: westmarch-adminer
+    ports:
+      - "8080:8080"
+    networks:
+      - westmarch-network
+    restart: unless-stopped
+
+  # Nginx Proxy Manager
   nginx-proxy-manager:
     image: jc21/nginx-proxy-manager:latest
     container_name: nginx-proxy-manager
     ports:
-      - "80:80"     # HTTP
-      - "443:443"   # HTTPS
-      - "81:81"     # Admin UI
+      - "80:80"
+      - "443:443"
+      - "81:81"
     environment:
       DB_SQLITE_FILE: "/data/database.sqlite"
     volumes:
@@ -57,3 +112,5 @@ networks:
 volumes:
   npm-data:
   npm-letsencrypt:
+  foundry-data:
+  sqlserver-data:

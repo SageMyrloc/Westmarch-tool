@@ -1,0 +1,6 @@
+FOUNDRY_USERNAME=your_foundry_username
+FOUNDRY_PASSWORD=your_foundry_password
+FOUNDRY_LICENSE_KEY=your_foundry_license_key
+FOUNDRY_ADMIN_KEY=your_foundry_admin_key
+SQL_PASSWORD=your_sql_password
+JWT_SECRET=your_jwt_secret_key
