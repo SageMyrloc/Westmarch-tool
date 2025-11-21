@@ -1,13 +1,18 @@
-using System.Reflection;
+using Westmarch_tool.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Add DbContext
+builder.Services.AddDbContext<WestmarchDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Add CORS - Updated for Docker environment
+// Add CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowWeb", policy =>
