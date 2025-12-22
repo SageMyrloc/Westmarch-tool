@@ -76,10 +76,10 @@
 
                 const data = await response.json();
 
-                // Store token and user info (matching backend AuthResponse)
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('username', data.username);
                 localStorage.setItem('playerId', data.playerId);
+                localStorage.setItem('roles', JSON.stringify(data.roles)); // ADD THIS
                 if (data.discordId) {
                     localStorage.setItem('discordId', data.discordId);
                 }

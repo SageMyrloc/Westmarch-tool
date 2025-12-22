@@ -46,15 +46,33 @@ namespace Westmarch_tool.Infrastructure.Services
             _context.Players.Add(player);
             await _context.SaveChangesAsync();
 
-            // Generate JWT token
-            var token = GenerateJwtToken(player);
+            // Assign default "Player" role
+            var playerRole = await _context.Roles.FirstOrDefaultAsync(r => r.Name == "Player");
+            if (playerRole != null)
+            {
+                var assignment = new PlayerRole
+                {
+                    PlayerId = player.Id,
+                    RoleId = playerRole.Id,
+                    AssignedDate = DateTime.UtcNow
+                };
+                _context.PlayerRoles.Add(assignment);
+                await _context.SaveChangesAsync();
+            }
+
+            // Load roles for response
+            var roles = await GetPlayerRolesAsync(player.Id);
+
+            // Generate JWT token with roles
+            var token = GenerateJwtToken(player, roles);
 
             return new AuthResponse
             {
                 PlayerId = player.Id,
                 Username = player.Username,
                 Token = token,
-                DiscordId = player.DiscordId
+                DiscordId = player.DiscordId,
+                Roles = roles
             };
         }
 
@@ -79,31 +97,51 @@ namespace Westmarch_tool.Infrastructure.Services
             player.LastLoginDate = DateTime.UtcNow;
             await _context.SaveChangesAsync();
 
-            // Generate JWT token
-            var token = GenerateJwtToken(player);
+            // Load roles
+            var roles = await GetPlayerRolesAsync(player.Id);
+
+            // Generate JWT token with roles
+            var token = GenerateJwtToken(player, roles);
 
             return new AuthResponse
             {
                 PlayerId = player.Id,
                 Username = player.Username,
                 Token = token,
-                DiscordId = player.DiscordId
+                DiscordId = player.DiscordId,
+                Roles = roles
             };
         }
 
-        private string GenerateJwtToken(Player player)
+        private async Task<List<string>> GetPlayerRolesAsync(int playerId)
+        {
+            return await _context.PlayerRoles
+                .Where(pr => pr.PlayerId == playerId)
+                .Include(pr => pr.Role)
+                .Select(pr => pr.Role.Name)
+                .ToListAsync();
+        }
+
+        private string GenerateJwtToken(Player player, List<string> roles)
         {
             var securityKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(_configuration["JwtSettings:SecretKey"]!));
 
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-            var claims = new[]
+            // Build claims list
+            var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, player.Id.ToString()),
                 new Claim(ClaimTypes.Name, player.Username),
                 new Claim("DiscordId", player.DiscordId ?? string.Empty)
             };
+
+            // Add role claims
+            foreach (var role in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
 
             var token = new JwtSecurityToken(
                 issuer: _configuration["JwtSettings:Issuer"],

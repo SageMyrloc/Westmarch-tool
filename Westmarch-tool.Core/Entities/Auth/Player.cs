@@ -13,5 +13,7 @@ namespace Westmarch_tool.Core.Entities.Auth
 
         // Navigation property
         public ICollection<Character> Characters { get; set; } = new List<Character>();
+        public ICollection<PlayerRole> PlayerRoles { get; set; } = new List<PlayerRole>();
+
     }
 }
