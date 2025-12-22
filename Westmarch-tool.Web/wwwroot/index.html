@@ -1,5 +1,4 @@
-﻿
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -48,10 +47,16 @@
     </div>
     </div>
 
+    <!-- CRITICAL: Script loading order matters! -->
+    <!-- 1. Bootstrap FIRST (modals need it) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- 2. App.js SECOND (defines API_BASE_URL) -->
     <script src="/js/core/app.js"></script>
+
+    <!-- 3. Components LAST (use API_BASE_URL) -->
     <script src="/js/components/login-modal.js"></script>
     <script src="/js/components/register-modal.js"></script>
     <script src="/js/components/app-navbar.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
