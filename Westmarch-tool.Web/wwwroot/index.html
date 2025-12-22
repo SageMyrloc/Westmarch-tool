@@ -1,15 +1,57 @@
+﻿
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Westmarch Tool - Test</title>
+    <title>The Haunted House | D&D Archive</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
-<body>
-    <h1>Westmarch Tool</h1>
-    <button id="testBtn">Test API</button>
-    <pre id="result"></pre>
+<body class="bg-dark text-light">
 
-    <script src="js/core/app.js"></script>
+    <app-navbar active="home"></app-navbar>
+
+    <!-- Main Content -->
+    <div class="container mt-3">
+        <div class="row">
+            <!-- Featured -->
+            <div class="col-lg-7">
+                <div class="card bg-black text-light border-secondary mb-4">
+                    <img src="/assets/images/torch-bearers.jpg" class="hero-image" alt="Haunted House">
+                    <div class="card-body">
+                        <h2 class="card-title text-warning">Torch Bearers</h2>
+                        <p class="card-text">
+                            A westmarch style game set in a world of mist and soul lanterns
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Right Side -->
+            <div class="col-lg-4 offset-1">
+
+                <info-card title="Box 1"
+                           content="Welcome to The Torchbearers! Character creation is now open. Visit the Characters page to import your Pathbuilder character.">
+                </info-card>
+
+                <info-card title="Box 2"
+                           content="A West Marches style Pathfinder 2e campaign set in a world of mist and soul lanterns. Explore at your own pace!">
+                </info-card>
+                </info-card>
+
+                <next-session-card></next-session-card>
+
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+    <script src="/js/components/login-modal.js"></script>
+    <script src="/js/components/register-modal.js"></script>
+    <script src="/js/components/app-navbar.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
