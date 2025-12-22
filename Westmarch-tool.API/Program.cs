@@ -37,8 +37,7 @@ builder.Services.AddAuthorization();
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
+y
 // Add CORS
 builder.Services.AddCors(options =>
 {
@@ -48,7 +47,10 @@ builder.Services.AddCors(options =>
                 "https://localhost:7271",
                 "https://localhost:7169",
                 "http://localhost:5057",
-                "http://westmarch-web:8080"
+                "http://westmarch-web:8080",
+                "https://sagemyrloc.co.uk",
+                "https://www.sagemyrloc.co.uk",
+                "https://api.sagemyrloc.co.uk" 
 
               )
               .AllowAnyHeader()
@@ -66,7 +68,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowWeb");
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseAuthentication();  // Add this - must come before UseAuthorization
 app.UseAuthorization();
 app.MapControllers();
