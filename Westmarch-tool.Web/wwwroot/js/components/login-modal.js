@@ -76,10 +76,13 @@
 
                 const data = await response.json();
 
-                // Store token and user info
+                // Store token and user info (matching backend AuthResponse)
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('username', data.username);
-                localStorage.setItem('roles', JSON.stringify(data.roles));
+                localStorage.setItem('playerId', data.playerId);
+                if (data.discordId) {
+                    localStorage.setItem('discordId', data.discordId);
+                }
 
                 // Reload page to update navbar
                 window.location.reload();

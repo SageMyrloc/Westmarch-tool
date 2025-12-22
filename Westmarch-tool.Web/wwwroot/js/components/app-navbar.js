@@ -10,35 +10,15 @@
         const token = localStorage.getItem('token');
         const showAuth = !token;
 
-        // Check if user is admin
-        let isAdmin = false;
-        if (token) {
-            isAdmin = await this.checkIfAdmin(token);
-        }
+        // For now, admin check is disabled until backend endpoint is added
+        // TODO: Implement /api/Auth/me endpoint in backend
+        const isAdmin = false;
 
         this.render(showAuth, activePage, isAdmin);
 
         setTimeout(() => {
             this.attachEventListeners();
         }, 0);
-    }
-
-    async checkIfAdmin(token) {
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/Auth/me`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            if (!response.ok) return false;
-
-            const user = await response.json();
-            return user.roles && user.roles.includes('Admin');
-        } catch (error) {
-            console.error('Error checking admin status:', error);
-            return false;
-        }
     }
 
     render(showAuth, activePage, isAdmin) {
@@ -63,47 +43,33 @@
 
                     <!-- Collapsible content -->
                     <div class="collapse navbar-collapse position-lg-relative" id="navbarNav">
-                    <!-- Nav Links -->
-                    <ul class="navbar-nav me-auto">
-                        <li class="nav-item">
-                            <a class="nav-link ${activePage === 'home' ? 'active' : ''}" href="/">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link ${activePage === 'characters' ? 'active' : ''}" href="/characters.html">Characters</a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle ${activePage === 'settlement' || activePage === 'graveyard' ? 'active' : ''}" href="#" role="button">
-                                Community
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="settlement.html">Settlement</a></li>
-                                <li><a class="dropdown-item" href="graveyard.html">Graveyard</a></li>
-                            </ul>
-                        </li>
-                        <!-- Coming soon:
-                        <li class="nav-item">
-                            <a class="nav-link ${activePage === 'sessions' ? 'active' : ''}" href="/sessions.html">Sessions</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link ${activePage === 'shops' ? 'active' : ''}" href="/shops.html">Shops</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link ${activePage === 'map' ? 'active' : ''}" href="/map.html">Map</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link ${activePage === 'archives' ? 'active' : ''}" href="/archives.html">Archives</a>
-                        </li>
-                        -->
-                        ${isAdmin ? `
-                        <li class="nav-item">
-                            <a class="nav-link ${activePage === 'admin' ? 'active' : ''}" href="/admin.html">Admin</a>
-                        </li>
-                        ` : ''}
-                    </ul>
+                        <!-- Nav Links -->
+                        <ul class="navbar-nav me-auto">
+                            <li class="nav-item">
+                                <a class="nav-link ${activePage === 'home' ? 'active' : ''}" href="/">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link ${activePage === 'characters' ? 'active' : ''}" href="/characters.html">Characters</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle ${activePage === 'settlement' || activePage === 'graveyard' ? 'active' : ''}" href="#" role="button">
+                                    Community
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="settlement.html">Settlement</a></li>
+                                    <li><a class="dropdown-item" href="graveyard.html">Graveyard</a></li>
+                                </ul>
+                            </li>
+                            ${isAdmin ? `
+                            <li class="nav-item">
+                                <a class="nav-link ${activePage === 'admin' ? 'active' : ''}" href="/admin.html">Admin</a>
+                            </li>
+                            ` : ''}
+                        </ul>
 
-                    <!-- Right: Auth buttons -->
-                    ${showAuth ? this.renderAuthButtons() : this.renderUserMenu()}
-                </div>
+                        <!-- Right: Auth buttons -->
+                        ${showAuth ? this.renderAuthButtons() : this.renderUserMenu()}
+                    </div>
                 </div>
             </nav>
             
@@ -227,7 +193,8 @@
                 logoutBtn.addEventListener('click', () => {
                     localStorage.removeItem('token');
                     localStorage.removeItem('username');
-                    localStorage.removeItem('roles');
+                    localStorage.removeItem('playerId');
+                    localStorage.removeItem('discordId');
                     window.location.href = '/';
                 });
             }

@@ -34,6 +34,11 @@
                                     <label for="registerPasswordConfirm" class="form-label text-light">Confirm Password</label>
                                     <input type="password" class="form-control bg-black text-light border-secondary" id="registerPasswordConfirm" required>
                                 </div>
+                                <div class="mb-3">
+                                    <label for="registerDiscordId" class="form-label text-light">Discord ID <span class="text-muted">(Optional)</span></label>
+                                    <input type="text" class="form-control bg-black text-light border-secondary" id="registerDiscordId" placeholder="You can add this later">
+                                    <div class="form-text text-muted">Leave empty if you don't know your Discord ID</div>
+                                </div>
                                 <div class="alert alert-danger d-none" id="registerError"></div>
                                 <div class="alert alert-success d-none" id="registerSuccess"></div>
                             </form>
@@ -58,10 +63,11 @@
             const username = this.querySelector('#registerUsername').value;
             const password = this.querySelector('#registerPassword').value;
             const passwordConfirm = this.querySelector('#registerPasswordConfirm').value;
+            const discordId = this.querySelector('#registerDiscordId').value.trim() || null;
 
             // Validation
             if (!username || !password || !passwordConfirm) {
-                this.showError('Please fill in all fields');
+                this.showError('Please fill in all required fields');
                 return;
             }
 
@@ -89,7 +95,11 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ username, password })
+                    body: JSON.stringify({
+                        username,
+                        password,
+                        discordId: discordId  // Will be null if empty
+                    })
                 });
 
                 if (!response.ok) {
@@ -99,10 +109,13 @@
 
                 const data = await response.json();
 
-                // Store token and user info
+                // Store token and user info (matching backend AuthResponse)
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('username', data.username);
-                localStorage.setItem('roles', JSON.stringify(data.roles));
+                localStorage.setItem('playerId', data.playerId);
+                if (data.discordId) {
+                    localStorage.setItem('discordId', data.discordId);
+                }
 
                 // Show success and reload
                 this.showSuccess('Registration successful! Redirecting...');
