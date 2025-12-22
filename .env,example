@@ -4,3 +4,9 @@ FOUNDRY_LICENSE_KEY=your_foundry_license_key
 FOUNDRY_ADMIN_KEY=your_foundry_admin_key
 SQL_PASSWORD=your_sql_password
 JWT_SECRET=your_jwt_secret_key
+N8N_HOST=your_n8n_host
+WEBHOOK_URL=your_webhook_url
+N8N_ENCRYPTION_KEY=your_n8n_encryption_key
+
+
+
