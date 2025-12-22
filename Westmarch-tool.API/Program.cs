@@ -37,7 +37,7 @@ builder.Services.AddAuthorization();
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-y
+
 // Add CORS
 builder.Services.AddCors(options =>
 {
