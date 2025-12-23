@@ -10,15 +10,38 @@
         const token = localStorage.getItem('token');
         const showAuth = !token;
 
-        // For now, admin check is disabled until backend endpoint is added
-        // TODO: Implement /api/Auth/me endpoint in backend
-        const isAdmin = false;
+        // Check if user is admin by fetching from API
+        let isAdmin = false;
+        if (token) {
+            isAdmin = await this.checkAdminRole(token);
+        }
 
         this.render(showAuth, activePage, isAdmin);
 
         setTimeout(() => {
             this.attachEventListeners();
         }, 0);
+    }
+
+    async checkAdminRole(token) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                console.error('Failed to fetch user roles');
+                return false;
+            }
+
+            const data = await response.json();
+            return data.roles && data.roles.includes('Admin');
+        } catch (error) {
+            console.error('Error checking admin role:', error);
+            return false;
+        }
     }
 
     render(showAuth, activePage, isAdmin) {
@@ -195,6 +218,7 @@
                     localStorage.removeItem('username');
                     localStorage.removeItem('playerId');
                     localStorage.removeItem('discordId');
+                    localStorage.removeItem('roles');
                     window.location.href = '/';
                 });
             }
