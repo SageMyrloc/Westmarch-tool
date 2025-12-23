@@ -97,7 +97,7 @@
                     </div>
 
                     <!-- Character Form (populated by JSON or manual entry) -->
-                    <form id="characterForm" class="d-none">
+                    <form id="characterForm" class="d-none" novalidate>
                         <button class="btn btn-sm btn-outline-secondary mb-3" id="backToMethodBtn2">
                             ← Back
                         </button>
@@ -105,18 +105,18 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="charName" class="form-label text-light">Name *</label>
-                                <input type="text" class="form-control bg-black text-light border-secondary" id="charName" required>
+                                <input type="text" class="form-control bg-black text-light border-secondary" id="charName">
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="charClass" class="form-label text-light">Class *</label>
-                                <input type="text" class="form-control bg-black text-light border-secondary" id="charClass" required>
+                                <input type="text" class="form-control bg-black text-light border-secondary" id="charClass">
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="charAncestry" class="form-label text-light">Ancestry *</label>
-                                <input type="text" class="form-control bg-black text-light border-secondary" id="charAncestry" required>
+                                <input type="text" class="form-control bg-black text-light border-secondary" id="charAncestry">
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="charHeritage" class="form-label text-light">Heritage</label>

@@ -3,26 +3,57 @@ let myCharacters = [];
 let createCharacterModal = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
+    console.log('Characters page loading...');
+
     // Check if user is logged in
     const token = localStorage.getItem('token');
     if (!token) {
+        console.log('No token found, redirecting to home');
         window.location.href = '/';
         return;
     }
 
+    console.log('Token found, initializing page');
+
+    // Wait for Bootstrap to be ready
+    if (typeof bootstrap === 'undefined') {
+        console.error('Bootstrap not loaded!');
+        return;
+    }
+
     // Initialize modal
-    createCharacterModal = new bootstrap.Modal(document.getElementById('createCharacterModal'));
+    const modalElement = document.getElementById('createCharacterModal');
+    if (!modalElement) {
+        console.error('Modal element not found!');
+        return;
+    }
+
+    createCharacterModal = new bootstrap.Modal(modalElement);
+    console.log('Modal initialized');
 
     // Attach event listeners
     attachEventListeners();
+    console.log('Event listeners attached');
 
     // Load characters
     await loadMyCharacters();
+    console.log('Characters loaded');
 });
 
 function attachEventListeners() {
+    console.log('Attaching event listeners...');
+
     // Create character button
-    document.getElementById('createCharacterBtn').addEventListener('click', openCreateCharacterModal);
+    const createBtn = document.getElementById('createCharacterBtn');
+    if (!createBtn) {
+        console.error('Create character button not found!');
+        return;
+    }
+    console.log('Found create character button:', createBtn);
+    createBtn.addEventListener('click', () => {
+        console.log('Create character button clicked!');
+        openCreateCharacterModal();
+    });
 
     // Import method buttons
     document.getElementById('importPathbuilderBtn').addEventListener('click', showPathbuilderImport);
@@ -37,13 +68,25 @@ function attachEventListeners() {
 
     // Submit character button
     document.getElementById('submitCharacterBtn').addEventListener('click', submitCharacter);
+
+    console.log('All event listeners attached');
 }
 
 function openCreateCharacterModal() {
+    console.log('Opening create character modal...');
+
+    if (!createCharacterModal) {
+        console.error('Modal not initialized!');
+        return;
+    }
+
     // Reset modal to initial state
     showMethodSelection();
     resetForm();
+
+    console.log('Showing modal...');
     createCharacterModal.show();
+    console.log('Modal shown');
 }
 
 function showMethodSelection() {
@@ -78,29 +121,42 @@ function parsePathbuilderJson() {
     try {
         const data = JSON.parse(jsonText);
 
+        // Check if data has the 'build' property (actual Pathbuilder format)
+        const build = data.build || data;
+
+        console.log('Parsing build data:', build);
+
         // Populate form fields from Pathbuilder JSON
         // Basic Info
-        document.getElementById('charName').value = data.name || '';
-        document.getElementById('charClass').value = data.class || '';
-        document.getElementById('charAncestry').value = data.ancestry || '';
-        document.getElementById('charHeritage').value = data.heritage || '';
-        document.getElementById('charBackground').value = data.background || '';
-        document.getElementById('charLevel').value = data.level || 1;
-        document.getElementById('charAlignment').value = data.alignment || '';
-        document.getElementById('charKeyAbility').value = data.keyability || '';
+        document.getElementById('charName').value = build.name || '';
+        document.getElementById('charClass').value = build.class || '';
+        document.getElementById('charAncestry').value = build.ancestry || '';
+        document.getElementById('charHeritage').value = build.heritage || '';
+        document.getElementById('charBackground').value = build.background || '';
+        document.getElementById('charLevel').value = build.level || 1;
+        document.getElementById('charAlignment').value = build.alignment || '';
+        document.getElementById('charKeyAbility').value = build.keyability || '';
 
-        // Size mapping (Pathbuilder uses different values)
-        const sizeMap = {
-            'Small': 2,
-            'Medium': 3,
-            'Large': 4
-        };
-        document.getElementById('charSize').value = sizeMap[data.size] || 3;
+        // Size mapping (Pathbuilder uses 2=Small, 3=Medium, etc but sometimes stored as number)
+        // Their JSON shows size: 2 and sizeName: "Medium" which seems inconsistent
+        let sizeValue = 3; // Default to Medium
+        if (build.sizeName) {
+            const sizeMap = {
+                'Small': 2,
+                'Medium': 3,
+                'Large': 4
+            };
+            sizeValue = sizeMap[build.sizeName] || 3;
+        } else if (build.size) {
+            sizeValue = build.size;
+        }
+        document.getElementById('charSize').value = sizeValue;
 
-        // Attributes
-        document.getElementById('charAncestryHP').value = data.ancestryhp || 0;
-        document.getElementById('charClassHP').value = data.classhp || 0;
-        document.getElementById('charSpeed').value = data.speed || 25;
+        // Attributes - check if nested in 'attributes' object
+        const attrs = build.attributes || build;
+        document.getElementById('charAncestryHP').value = attrs.ancestryhp || 0;
+        document.getElementById('charClassHP').value = attrs.classhp || 0;
+        document.getElementById('charSpeed').value = attrs.speed || 25;
 
         // Show the form
         document.getElementById('pathbuilderImportSection').classList.add('d-none');

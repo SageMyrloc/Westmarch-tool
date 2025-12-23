@@ -10,20 +10,23 @@
         const token = localStorage.getItem('token');
         const showAuth = !token;
 
-        // Check if user is admin by fetching from API
+        // Check if user is admin or DM by fetching from API
         let isAdmin = false;
+        let isDM = false;
         if (token) {
-            isAdmin = await this.checkAdminRole(token);
+            const roles = await this.checkUserRoles(token);
+            isAdmin = roles.isAdmin;
+            isDM = roles.isDM;
         }
 
-        this.render(showAuth, activePage, isAdmin);
+        this.render(showAuth, activePage, isAdmin, isDM);
 
         setTimeout(() => {
             this.attachEventListeners();
         }, 0);
     }
 
-    async checkAdminRole(token) {
+    async checkUserRoles(token) {
         try {
             const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
                 headers: {
@@ -33,18 +36,21 @@
 
             if (!response.ok) {
                 console.error('Failed to fetch user roles');
-                return false;
+                return { isAdmin: false, isDM: false };
             }
 
             const data = await response.json();
-            return data.roles && data.roles.includes('Admin');
+            return {
+                isAdmin: data.roles && data.roles.includes('Admin'),
+                isDM: data.roles && (data.roles.includes('DM') || data.roles.includes('Admin'))
+            };
         } catch (error) {
-            console.error('Error checking admin role:', error);
-            return false;
+            console.error('Error checking user roles:', error);
+            return { isAdmin: false, isDM: false };
         }
     }
 
-    render(showAuth, activePage, isAdmin) {
+    render(showAuth, activePage, isAdmin, isDM) {
         this.innerHTML = `
             <nav class="navbar navbar-expand-lg navbar-dark bg-black border-bottom border-secondary px-4 position-relative">
                 <div class="container-fluid">
@@ -83,6 +89,11 @@
                                     <li><a class="dropdown-item" href="graveyard.html">Graveyard</a></li>
                                 </ul>
                             </li>
+                            ${isDM ? `
+                            <li class="nav-item">
+                                <a class="nav-link ${activePage === 'dm' ? 'active' : ''}" href="/dm.html">DM Panel</a>
+                            </li>
+                            ` : ''}
                             ${isAdmin ? `
                             <li class="nav-item">
                                 <a class="nav-link ${activePage === 'admin' ? 'active' : ''}" href="/admin.html">Admin</a>
